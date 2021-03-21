@@ -1,0 +1,26 @@
+version: '3.4'
+
+services:
+  streaming:
+    image: ghcr.io/katonux/nemushee/mastodon:3.3.0
+    env_file:
+      - ../env/production.env
+      - ../env/streaming.env
+    command: node ./streaming
+    networks:
+      - traefik_ingress
+      - nemushee_internal
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider --proxy=off localhost:4000/api/v1/streaming/health || exit 1"]
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik_ingress"
+        - "traefik.http.routers.nemushee-stream.tls=true"
+        - "traefik.http.routers.nemushee-stream.tls.certresolver=myresolver"
+        - "traefik.http.routers.nemushee-stream.rule=Host(`stream.nemushee.net`)"
+        - "traefik.http.routers.nemushee-stream.entrypoints=websecure"
+        - "traefik.http.services.stream.loadbalancer.server.port=4000"
+      replicas: 4
+      placement:
+        constraints: [node.labels.nemushee_streaming_available == true]

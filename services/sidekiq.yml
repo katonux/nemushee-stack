@@ -1,0 +1,16 @@
+version: '3.4'
+
+services:
+  sidekiq:
+    image: ghcr.io/katonux/nemushee/mastodon:3.3.0
+    env_file: ../env/production.env
+    command: bundle exec sidekiq -c 1
+    networks:
+      - nemushee_internal
+    deploy:
+      replicas: 8
+      resources:
+        limits:
+          memory: 512M
+      placement:
+        constraints: [node.labels.nemushee_sidekiq_available == true]

@@ -1,0 +1,29 @@
+version: '3.4'
+
+services:
+  web:
+    image: ghcr.io/katonux/nemushee/mastodon:3.3.0
+    env_file:
+      - ../env/production.env
+      - ../env/web.env
+    command: bash -c "rm -f /mastodon/tmp/pids/server.pid; bundle exec rails s -p 3000 -b '0.0.0.0'"
+    networks:
+      - traefik_ingress
+      - nemushee_internal
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider --proxy=off localhost:3000/health || exit 1"]
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik_ingress"
+        - "traefik.http.routers.nemushee-puma.tls=true"
+        - "traefik.http.routers.nemushee-puma.tls.certresolver=myresolver"
+        - "traefik.http.routers.nemushee-puma.rule=Host(`nemushee.net`)"
+        - "traefik.http.routers.nemushee-puma.entrypoints=websecure"
+        - "traefik.http.routers.nemushee-puma.middlewares=streaming-redirect"
+        - "traefik.http.services.puma.loadbalancer.server.port=3000"
+        - "traefik.http.middlewares.streaming-redirect.redirectregex.regex=^(https|wss)://nemushee.net/api/v1/streaming(.*)$$"
+        - "traefik.http.middlewares.streaming-redirect.redirectregex.replacement=$${1}://stream.nemushee.net/api/v1/streaming$${2}"
+      replicas: 8
+      placement:
+        constraints: [node.labels.nemushee_web_available == true]

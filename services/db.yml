@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  db:
+    image: postgres:9.6-alpine
+    env_file: ../env/db.env
+    networks:
+      - nemushee_internal
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "mastodon", "-d", "mastodon_production"]
+    volumes:
+      - nemushee_postgres_v2:/var/lib/postgresql/data
+    deploy:
+      placement:
+        constraints: [node.labels.nemushee_db_available == true]

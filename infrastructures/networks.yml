@@ -1,0 +1,9 @@
+version: '3.4'
+
+networks:
+  traefik_ingress:
+    driver: overlay
+    external: true
+  nemushee_internal:
+    internal: true
+    external: true

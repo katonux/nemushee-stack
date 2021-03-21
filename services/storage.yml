@@ -1,0 +1,28 @@
+version: '3.4'
+
+services:
+  storage:
+    image: minio/minio
+    volumes:
+      - storage:/export:z
+    networks:
+      - traefik_ingress
+      - nemushee_internal
+    env_file: ../env/minio.env
+    command: server /export
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik_ingress"
+        - "traefik.http.routers.nemushee-minio.tls=true"
+        - "traefik.http.routers.nemushee-minio.tls.certresolver=myresolver"
+        - "traefik.http.routers.nemushee-minio.rule=Host(`media.nemushee.net`)"
+        - "traefik.http.routers.nemushee-minio.entrypoints=websecure"
+        - "traefik.http.services.minio.loadbalancer.server.port=9000"
+      placement:
+        constraints: [node.labels.nemushee_storage_available == true]
