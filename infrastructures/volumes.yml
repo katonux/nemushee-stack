@@ -3,15 +3,26 @@ version: '3.4'
 volumes:
   nemushee_postgres_v2:
    external: true
+
   redis:
     driver: local
+
   sidekiq:
     driver: local
-  storage:
+
+  storage-a:
     driver: local
     driver_opts:
       type: none
       o: bind
       device: /mnt/disk2t/nemushee
+  
+  storage-b:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/disk/nemushee
+
   elasticsearch:
     driver: local
