@@ -42,7 +42,7 @@ services:
       timeout: 20s
       retries: 3
     deploy:
-      replicas: 2
+      replicas: 1
       labels:
         - "traefik.enable=true"
         - "traefik.docker.network=traefik_ingress"
@@ -54,11 +54,11 @@ services:
       placement:
         constraints: [node.labels.nemushee_storage-b_available == true]
 
-  mc:
-    image: minio/mc
-    networks:
-      - nemushee_internal
-    entrypoint: tail -f /dev/null
-    deploy:
-      placement:
-        constraints: [node.hostname == spt-node-cran]
+  # mc:
+  #   image: minio/mc
+  #   networks:
+  #     - nemushee_internal
+  #   entrypoint: tail -f /dev/null
+  #   deploy:
+  #     placement:
+  #       constraints: [node.hostname == spt-node-cran]

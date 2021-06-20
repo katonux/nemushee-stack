@@ -2,9 +2,9 @@ version: '3.4'
 
 services:
   sidekiq:
-    image: ghcr.io/katonux/nemushee/mastodon:3.3.0
+    image: ghcr.io/katonux/nemushee/nemushee:3.4.0
     env_file: ../env/production.env
-    command: bundle exec sidekiq -c 1
+    command: bundle exec sidekiq -c 2
     networks:
       - nemushee_internal
     deploy:

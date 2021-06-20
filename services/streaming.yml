@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   streaming:
-    image: ghcr.io/katonux/nemushee/mastodon:3.3.0
+    image: ghcr.io/katonux/nemushee/nemushee:3.4.0
     env_file:
       - ../env/production.env
       - ../env/streaming.env
@@ -12,6 +12,8 @@ services:
       - nemushee_internal
     healthcheck:
       test: ["CMD-SHELL", "wget -q --spider --proxy=off localhost:4000/api/v1/streaming/health || exit 1"]
+      retries: 2
+      start_period: "60s"
     deploy:
       labels:
         - "traefik.enable=true"
